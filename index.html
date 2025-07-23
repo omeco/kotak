@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>100 Kotak Warna dengan Angka</title>
+  <style>
+    body {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 30px auto;
+      gap: 5px;
+      font-family: sans-serif;
+    }
+    .box {
+      width: 50px;
+      height: 50px;
+      background-color: lightgray;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-color 0.3s;
+    }
+    .number {
+      font-size: 18px;
+      color: black;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 100 kotak -->
+  <script>
+    const colors = ["blue", "red", "yellow"];
+    for (let i = 1; i <= 100; i++) {
+      const box = document.createElement("div");
+      box.classList.add("box");
+      box.dataset.colorIndex = -1;
+
+      // Buat angka samar
+      const number = document.createElement("div");
+      number.classList.add("number");
+      number.textContent = i;
+
+      box.appendChild(number);
+
+      // Ganti warna saat diklik
+      box.addEventListener("click", () => {
+        let index = parseInt(box.dataset.colorIndex);
+        index = (index + 1) % colors.length;
+        box.dataset.colorIndex = index;
+        box.style.backgroundColor = colors[index];
+      });
+
+      document.body.appendChild(box);
+    }
+  </script>
+</body>
+</html>
