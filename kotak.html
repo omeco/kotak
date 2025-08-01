@@ -2,63 +2,114 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>100 Kotak Warna dengan Angka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Toggle Grid</title>
   <style>
     body {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 600px;
-      margin: 30px auto;
-      gap: 5px;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
     }
-    .box {
-      width: 50px;
-      height: 50px;
-      background-color: lightgray;
-      border: 1px solid #ccc;
-      cursor: pointer;
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      gap: 50px;
+      justify-content: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 70px);
+      grid-auto-rows: 70px;
+      gap: 8px;
+      background-color: #eaeaea;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .cell {
+      width: 70px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      transition: background-color 0.3s;
+      background-color: #ffffff;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    .number {
-      font-size: 18px;
-      color: black;
-      opacity: 0.3;
-      pointer-events: none;
+    .cell:hover {
+      transform: scale(1.05);
+    }
+    .grey {
+      background-color: #ccc !important;
+      cursor: default;
+      box-shadow: none;
     }
   </style>
 </head>
 <body>
-  <!-- 100 kotak -->
+  <div class="container" id="grids"></div>
+
   <script>
-    const colors = ["blue", "red", "yellow"];
-    for (let i = 1; i <= 100; i++) {
-      const box = document.createElement("div");
-      box.classList.add("box");
-      box.dataset.colorIndex = -1;
+    const data = [
+      [
+        [101, 103, 105, 107, 109, 111, 113],
+        [102, 104, 106, '', 108, 110, 112],
+      ],
+      [
+        [107, 106, 105, 104, 103, 102, 101],
+        [108, 109, '', '', '', 110, 113],
+      ],
+      [
+        [201, 203, 205, 207, 209, 211, 213],
+        [202, 204, 206, '', 208, 210, 212],
+      ],
+      [
+        [107, 106, 105, 104, 103, 102, 101],
+        [108, 109, 210, 211, 212, 213, 214],
+      ],
+      [
+        [301, 303, 305, 307, 309, 311, 313],
+        [302, 304, 306, '', 308, 310, 312],
+      ],
+      [
+        [307, 306, 305, 304, 303, 302, 301],
+        [308, 309, 310, 311, 312, 313, ''],
+      ],
+    ];
 
-      // Buat angka samar
-      const number = document.createElement("div");
-      number.classList.add("number");
-      number.textContent = i;
+    const colors = ['#ffb3b3', '#ffe699', '#b3d1ff']; // soft red, yellow, blue
+    const gridsContainer = document.getElementById('grids');
 
-      box.appendChild(number);
-
-      // Ganti warna saat diklik
-      box.addEventListener("click", () => {
-        let index = parseInt(box.dataset.colorIndex);
-        index = (index + 1) % colors.length;
-        box.dataset.colorIndex = index;
-        box.style.backgroundColor = colors[index];
+    data.forEach(group => {
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+      group.forEach(row => {
+        row.forEach(cell => {
+          const div = document.createElement('div');
+          div.className = 'cell';
+          if (cell !== '') {
+            div.textContent = cell;
+            div.dataset.colorIndex = "-1"; // initial state
+            div.addEventListener('click', () => {
+              let index = parseInt(div.dataset.colorIndex);
+              index = (index + 1) % colors.length;
+              div.style.backgroundColor = colors[index];
+              div.dataset.colorIndex = index;
+            });
+          } else {
+            div.classList.add('grey');
+            div.textContent = '';
+          }
+          grid.appendChild(div);
+        });
       });
-
-      document.body.appendChild(box);
-    }
+      gridsContainer.appendChild(grid);
+    });
   </script>
 </body>
 </html>
