@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Color Toggle Grid</title>
   <style>
     body {
@@ -11,12 +11,16 @@
       margin: 0;
       padding: 20px;
     }
+
     .container {
       display: grid;
-      grid-template-columns: repeat(2, auto);
-      gap: 50px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
       justify-content: center;
+      max-width: 1200px;
+      margin: auto;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(7, 70px);
@@ -26,7 +30,9 @@
       padding: 10px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      justify-content: center;
     }
+
     .cell {
       width: 70px;
       height: 70px;
@@ -41,13 +47,28 @@
       transition: background-color 0.3s, transform 0.2s;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
+
     .cell:hover {
       transform: scale(1.05);
     }
+
     .grey {
       background-color: #ccc !important;
       cursor: default;
       box-shadow: none;
+    }
+
+    /* Responsive settings */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -82,12 +103,13 @@
       ],
     ];
 
-    const colors = ['#ffb3b3', '#ffe699', '#b3d1ff']; // soft red, yellow, blue
+    const colors = ['#ffb3b3', '#ffe699', '#b3d1ff']; // red, yellow, blue
     const gridsContainer = document.getElementById('grids');
 
     data.forEach(group => {
       const grid = document.createElement('div');
       grid.className = 'grid';
+
       group.forEach(row => {
         row.forEach(cell => {
           const div = document.createElement('div');
@@ -103,11 +125,11 @@
             });
           } else {
             div.classList.add('grey');
-            div.textContent = '';
           }
           grid.appendChild(div);
         });
       });
+
       gridsContainer.appendChild(grid);
     });
   </script>
