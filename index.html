@@ -73,6 +73,9 @@
   </style>
 </head>
 <body>
+  <!-- Suara klik -->
+  <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+
   <div class="container" id="grids"></div>
 
   <script>
@@ -103,7 +106,8 @@
       ],
     ];
 
-    const colors = ['#ffb3b3', '#ffe699', '#b3d1ff']; // red, yellow, blue
+    const colors = ['#ff4d4d', '#ffd633', '#3399ff']; // merah terang, kuning terang, biru tegas
+    const clickSound = document.getElementById('clickSound');
     const gridsContainer = document.getElementById('grids');
 
     data.forEach(group => {
@@ -122,6 +126,8 @@
               index = (index + 1) % colors.length;
               div.style.backgroundColor = colors[index];
               div.dataset.colorIndex = index;
+              clickSound.currentTime = 0;
+              clickSound.play();
             });
           } else {
             div.classList.add('grey');
