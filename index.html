@@ -10,6 +10,7 @@
       background-color: #f9f9f9;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
 
     .container {
@@ -58,7 +59,6 @@
       box-shadow: none;
     }
 
-    /* Responsive settings */
     @media (max-width: 768px) {
       .container {
         grid-template-columns: 1fr;
@@ -73,79 +73,79 @@
   </style>
 </head>
 <body>
-  <!-- Suara klik -->
-  <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+  <!-- Suara klik langsung base64 -->
+  <audio id="clickSound" preload="auto">
+    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA..." type="audio/mpeg">
+  </audio>
 
   <div class="container" id="grids"></div>
 
   <script>
     const data = [
-      [
-        [101, 103, 105, 107, 109, 111, 113],
-        [102, 104, 106, '', 108, 110, ''],
-      ],
-      [
-        [107, 106, 105, 104, 103, 102, 101],
-        [108, 109, '', '', '', 110, 111],
-      ],
-      [
-        [201, 203, 205, 207, 209, 211, 213],
-        [202, 204, 206, '', 208, 212, ''],
-      ],
-      [
-        [207, 206, 205, 204, 203, 202, 201],
-        [208, 209, 210, '', 211, 212, 213],
-      ],
-      [
-        [301, 303, 305, 307, 309, 311, 313],
-        [302, 304, 306, '', 308, 312, ''],
-      ],
-      [
-        [307, 306, 305, 304, 303, 302, 301],
-        [308, 309, 310, '', 311, 312, 313],
-      ],
-      [
-        [401, 403, 405, 407, 409, 411, 413],
-        [402, 404, 406, '', 408, 412, ''],
-      ],
-      [
-        [407, 406, 405, 404, 403, 402, 401],
-        [408, 409, 410, '', 411, 412, 413],
-      ],
+      [[101, 103, 105, 107, 109, 111, 113],[102, 104, 106, '', 108, 110, '']],
+      [[107, 106, 105, 104, 103, 102, 101],[108, 109, '', '', '', 110, 111]],
+      [[201, 203, 205, 207, 209, 211, 213],[202, 204, 206, '', 208, 212, '']],
+      [[207, 206, 205, 204, 203, 202, 201],[208, 209, 210, '', 211, 212, 213]],
+      [[301, 303, 305, 307, 309, 311, 313],[302, 304, 306, '', 308, 312, '']],
+      [[307, 306, 305, 304, 303, 302, 301],[308, 309, 310, '', 311, 312, 313]],
+      [[401, 403, 405, 407, 409, 411, 413],[402, 404, 406, '', 408, 412, '']],
+      [[407, 406, 405, 404, 403, 402, 401],[408, 409, 410, '', 411, 412, 413]]
     ];
 
-    const colors = ['#ff4d4d', '#ffd633', '#3399ff']; // merah terang, kuning terang, biru tegas
+    const colors = ['#ff4d4d', '#ffd633', '#3399ff'];
     const clickSound = document.getElementById('clickSound');
     const gridsContainer = document.getElementById('grids');
 
-    data.forEach(group => {
-      const grid = document.createElement('div');
-      grid.className = 'grid';
+    // Ambil data warna terakhir dari localStorage
+    let savedColors = JSON.parse(localStorage.getItem('cellColors')) || {};
 
-      group.forEach(row => {
-        row.forEach(cell => {
-          const div = document.createElement('div');
-          div.className = 'cell';
-          if (cell !== '') {
-            div.textContent = cell;
-            div.dataset.colorIndex = "-1"; // initial state
-            div.addEventListener('click', () => {
-              let index = parseInt(div.dataset.colorIndex);
-              index = (index + 1) % colors.length;
-              div.style.backgroundColor = colors[index];
-              div.dataset.colorIndex = index;
-              clickSound.currentTime = 0;
-              clickSound.play();
-            });
-          } else {
-            div.classList.add('grey');
-          }
-          grid.appendChild(div);
+    function renderGrid() {
+      gridsContainer.innerHTML = '';
+      data.forEach((group, groupIndex) => {
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        group.forEach((row, rowIndex) => {
+          row.forEach((cell, cellIndex) => {
+            const div = document.createElement('div');
+            div.className = 'cell';
+
+            if (cell !== '') {
+              div.textContent = cell;
+
+              const cellKey = `${groupIndex}-${rowIndex}-${cellIndex}`;
+              let storedIndex = savedColors[cellKey] ?? -1;
+              div.dataset.colorIndex = storedIndex;
+
+              if (storedIndex >= 0) {
+                div.style.backgroundColor = colors[storedIndex];
+              }
+
+              div.addEventListener('click', () => {
+                let index = parseInt(div.dataset.colorIndex);
+                index = (index + 1) % colors.length;
+                div.style.backgroundColor = colors[index];
+                div.dataset.colorIndex = index;
+
+                savedColors[cellKey] = index;
+                localStorage.setItem('cellColors', JSON.stringify(savedColors));
+
+                if (clickSound && clickSound.readyState >= 2) {
+                  clickSound.currentTime = 0;
+                  clickSound.play().catch(()=>{});
+                }
+              });
+            } else {
+              div.classList.add('grey');
+            }
+
+            grid.appendChild(div);
+          });
         });
+        gridsContainer.appendChild(grid);
       });
+    }
 
-      gridsContainer.appendChild(grid);
-    });
+    renderGrid();
   </script>
 </body>
 </html>
