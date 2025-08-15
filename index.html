@@ -1,86 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Color Toggle Grid</title>
+  <title>Color Toggle Grid - Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 40px;
-      justify-content: center;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(7, 70px);
-      grid-auto-rows: 70px;
-      gap: 8px;
-      background-color: #eaeaea;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      justify-content: center;
-    }
-
-    .cell {
-      width: 70px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #ffffff;
-      font-weight: bold;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .cell:hover {
-      transform: scale(1.05);
-    }
-
-    .grey {
-      background-color: #ccc !important;
-      cursor: default;
-      box-shadow: none;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
+    body { font-family: sans-serif; text-align: center; padding: 20px; background: #f9f9f9; }
+    .container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 1200px; margin: auto; }
+    .grid { display: grid; grid-template-columns: repeat(7, 70px); gap: 8px; background: #eaeaea; padding: 10px; border-radius: 10px; }
+    .cell { width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background: #fff; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+    .grey { background: #ccc !important; cursor: default; }
+    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <!-- Suara klik langsung base64 -->
-  <audio id="clickSound" preload="auto">
-    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA..." type="audio/mpeg">
-  </audio>
-
+  <h1>Color Toggle Grid (Firebase)</h1>
   <div class="container" id="grids"></div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
   <script>
+    // 1️⃣ Ganti konfigurasi ini dengan konfigurasi Firebase project kamu
+    const firebaseConfig = {
+      apiKey: "API_KEY_KAMU",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://PROJECT_ID.firebaseio.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const data = [
       [[101, 103, 105, 107, 109, 111, 113],[102, 104, 106, '', 108, 110, '']],
       [[107, 106, 105, 104, 103, 102, 101],[108, 109, '', '', '', 110, 111]],
@@ -93,51 +48,33 @@
     ];
 
     const colors = ['#ff4d4d', '#ffd633', '#3399ff'];
-    const clickSound = document.getElementById('clickSound');
     const gridsContainer = document.getElementById('grids');
 
-    // Ambil data warna terakhir dari localStorage
-    let savedColors = JSON.parse(localStorage.getItem('cellColors')) || {};
-
-    function renderGrid() {
+    function renderGrid(savedColors = {}) {
       gridsContainer.innerHTML = '';
-      data.forEach((group, groupIndex) => {
+      data.forEach((group, gIdx) => {
         const grid = document.createElement('div');
         grid.className = 'grid';
-        group.forEach((row, rowIndex) => {
-          row.forEach((cell, cellIndex) => {
+        group.forEach((row, rIdx) => {
+          row.forEach((cell, cIdx) => {
             const div = document.createElement('div');
             div.className = 'cell';
 
             if (cell !== '') {
               div.textContent = cell;
-
-              const cellKey = `${groupIndex}-${rowIndex}-${cellIndex}`;
+              const cellKey = `${gIdx}-${rIdx}-${cIdx}`;
               let storedIndex = savedColors[cellKey] ?? -1;
-              div.dataset.colorIndex = storedIndex;
-
               if (storedIndex >= 0) {
                 div.style.backgroundColor = colors[storedIndex];
               }
-
               div.addEventListener('click', () => {
-                let index = parseInt(div.dataset.colorIndex);
-                index = (index + 1) % colors.length;
-                div.style.backgroundColor = colors[index];
-                div.dataset.colorIndex = index;
-
-                savedColors[cellKey] = index;
-                localStorage.setItem('cellColors', JSON.stringify(savedColors));
-
-                if (clickSound && clickSound.readyState >= 2) {
-                  clickSound.currentTime = 0;
-                  clickSound.play().catch(()=>{});
-                }
+                let index = (storedIndex + 1) % colors.length;
+                storedIndex = index;
+                db.ref('cellColors/' + cellKey).set(index);
               });
             } else {
               div.classList.add('grey');
             }
-
             grid.appendChild(div);
           });
         });
@@ -145,7 +82,11 @@
       });
     }
 
-    renderGrid();
+    // 2️⃣ Sync data dari Firebase realtime
+    db.ref('cellColors').on('value', snapshot => {
+      const savedColors = snapshot.val() || {};
+      renderGrid(savedColors);
+    });
   </script>
 </body>
 </html>
